@@ -1,0 +1,48 @@
+Sub SaveAsCSVWithQuotes()
+    Dim FilePath As String
+    FilePath = Application.GetSaveAsFilename(FileFilter:="CSV Files (*.csv), *.csv")
+
+    If FilePath = "False" Then Exit Sub
+
+    Dim OutputFile As String
+    OutputFile = FilePath
+
+    Dim RowNum As Long
+    Dim ColNum As Long
+    Dim LastRow As Long
+    Dim LastCol As Long
+    Dim CSVLine As String
+    Dim CellValue As String
+    Dim FileNum As Integer
+
+    LastRow = ActiveSheet.Cells(Rows.Count, 1).End(xlUp).Row
+    LastCol = ActiveSheet.Cells(1, Columns.Count).End(xlToLeft).Column
+
+    FileNum = FreeFile
+    Open OutputFile For Output As FileNum
+
+    For RowNum = 1 To LastRow
+        CSVLine = ""
+        For ColNum = 1 To LastCol
+            CellValue = Cells(RowNum, ColNum).Value
+
+            ' Remove new line characters (carriage return and line feed)
+            CellValue = Replace(CellValue, Chr(10), " ")
+            CellValue = Replace(CellValue, Chr(13), " ")
+
+            ' Escape any existing double quotes in the cell value
+            CellValue = """" & Replace(CellValue, """", """""") & """"
+
+            ' Add cell value to the CSV line
+            CSVLine = CSVLine & CellValue
+            If ColNum < LastCol Then
+                CSVLine = CSVLine & ","
+            End If
+        Next ColNum
+        Print #FileNum, CSVLine
+    Next RowNum
+
+    Close FileNum
+    MsgBox "File saved as CSV with quotes and new lines removed.", vbInformation
+End Sub
+
