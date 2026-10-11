@@ -55,7 +55,16 @@ public enum Group2 {
     service,
 
 
-    WORLDFINANCIALGR
+    WORLDFINANCIALGR,
 
+    TraderJoe,
+    RALPHS,
+    ZION,
+
+    innerTransfer,
+    manual,
+    skip_asin_1099,
+    payCC,
+    balance
 
 }

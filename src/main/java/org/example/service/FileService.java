@@ -68,6 +68,7 @@ public class FileService {
                 .collect(Collectors.toList());
 
         List<String> lines1 = new ArrayList<>();
+        lines1.add("fileName|description|group1|group2|amount|groupSum|searchKey");
         sortedRecords.forEach( x -> lines1.add(x.toLineWithGroupAmmount()));
         writeOutput(lines1, "all_" + outFilePrefix + "withGroupSum.csv", "all_withGroupSum.csv");
 

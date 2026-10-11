@@ -7,6 +7,17 @@ import java.util.List;
 
 public class RecordConfigBase {
     public List<ConfigInfo> configInfos = new ArrayList<>();
+
+    //BAU rules shared by every vendor - checked before any vendor-specific rule,
+    //since subclasses run this constructor first (implicit super()) and
+    //getGroupInfo() returns the first match in configInfos order.
+    public RecordConfigBase(){
+        addConfig("PETSMART", Group1.notCount);
+        addConfig("TRADER JOE", Group1.notCount, Group2.TraderJoe);
+        addConfig("RALPHS #029", Group1.notCount, Group2.RALPHS);
+        addConfig("ZION MARKET", Group1.notCount, Group2.ZION);
+    }
+
     void addConfig(String des, Group1 group1, Group2 group2) {
         configInfos.add(ConfigInfo.builder()
                 .searchKey(des.toLowerCase())

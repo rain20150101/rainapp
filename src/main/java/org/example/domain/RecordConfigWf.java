@@ -17,7 +17,7 @@ public class RecordConfigWf extends RecordConfigBase {
         addConfig("ATM CHECK DEPOSIT ON 11/12 6360 Irvine Blvd Irvine CA 0001607 ATM ID 9906S CARD 2403", Group1.liuRealestate, Group2.commission_rental);
         addConfig("ZELLE FROM PANDA CLEAN INC", Group1.liuRealestate_income, Group2.commission_referal); //
         addConfig("WT FED", Group1.question);
-        addConfig("WORLDFINANCIALGR COMMISSION",Group1.liuRealestate_income,Group2._ignore_as_in_1099); //
+        addConfig("WORLDFINANCIALGR COMMISSION",Group1.liuRealestate_income,Group2.WORLDFINANCIALGR); //
         addConfig("VENMO PAYMENT", Group1.unkown, Group2.venmoexpenase);
         addConfig("VENMO CASHOUT", Group1.unkown, Group2.venmoincome);
         addConfig("TOYOTA FINANCIAL LEASE", Group1.liuRealestate,Group2.carlease);
@@ -66,8 +66,20 @@ public class RecordConfigWf extends RecordConfigBase {
         addConfig("WF Bus Credit AUTO PAY", Group1.notCount);
         addConfig("VW CREDIT", Group1.notCount, Group2.carlease);
         addConfig("TD AMERITRADE", Group1.notCount);
+
+        //more specific than the generic "RECURRING TRANSFER TO/FROM" rules below,
+        //so these must be registered first (getGroupInfo returns the first match)
+        addConfig("RECURRING TRANSFER TO ZHESHUN CUI", Group1.notCount, Group2.innerTransfer);
+        addConfig("RECURRING TRANSFER TO LIU CUI FAMILY TRUST", Group1.notCount, Group2.innerTransfer);
+        addConfig("RECURRING TRANSFER FROM ZHESHUN CUI BUSINESS CHECKING", Group1.notCount, Group2.innerTransfer);
+        addConfig("RECURRING TRANSFER FROM LIU G EVERYDAY CHECKING", Group1.notCount, Group2.innerTransfer);
+
         addConfig("RECURRING TRANSFER TO", Group1.notCount);
         addConfig("RECURRING TRANSFER FROM", Group1.notCount);
+        addConfig("WETRUST REALTY   COMMISSION", Group1.liuRealestate_income, Group2.skip_asin_1099);
+        addConfig("WASTE MANAGEMENT PAYMENT", Group1.liuRealestate, Group2.manual);
+        addConfig("FLOOR AND DECOR 129 SANTA ANA CA", Group1.question);
+        addConfig("Coinbase.com", Group1.highlight);
         addConfig("LOANDEPOT COM LL DIRECT", Group1.notCount);
         addConfig("ONLINE TRANSFER", Group1.notCount);
         addConfig("METROPOLITAN LIF POL", Group1.notCount);
@@ -78,9 +90,9 @@ public class RecordConfigWf extends RecordConfigBase {
         addConfig("eBay PAYOUT", Group1.sprill, Group2.ebay);
         addConfig("eBay Inc", Group1.sprill, Group2.ebay);
         addConfig("eBay Com", Group1.sprill, Group2.ebay);
-        addConfig("DISCOVER E-PAYMENT", Group1.notCount);
+        addConfig("DISCOVER E-PAYMENT", Group1.notCount, Group2.payCC);
         addConfig("CITI AUTOPAY PAYMENT", Group1.notCount);
-        addConfig("CHASE CREDIT CRD AUTOPAY", Group1.notCount);
+        addConfig("CHASE CREDIT CRD AUTOPAY", Group1.notCount, Group2.payCC);
 
         addConfig("ATGPay Online", Group1.irvine169, Group2.hoa);
         addConfig("Atgpay Online", Group1.irvine169, Group2.hoa);

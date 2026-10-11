@@ -5,6 +5,9 @@ public class RecordConfigDiscover extends RecordConfigBase {
 
         addConfig("-587", Group1.irvine169, Group2.insurance);
 
+        addConfig("DIRECTPAY FULL BALANCE", Group1.notCount, Group2.balance);
+        addConfig("PETS BEST", Group1.notCount);
+
 
         addConfig("ZILLOW *RENT LISTINGS", Group1.liuRealestate, Group2.ads);
         addConfig("WORLDFINANCIALGROUP", Group1.liuRealestate, Group2.career);

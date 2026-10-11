@@ -24,5 +24,7 @@ public enum Group1 {
     adaneducation,
     unkown,
 
-    resturant
+    resturant,
+
+    highlight
 }
