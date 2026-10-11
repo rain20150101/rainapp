@@ -9,8 +9,9 @@ import java.util.regex.Pattern;
 
 public class DiscoverService {
     //file format DFS_
-//    Trans. Date,Post Date,Description,Amount,Category
-//01/01/2023,01/01/2023,"TST* PARIS BAGUETTE - ZI IRVINE CA",21.75,"Restaurants"
+//    current raw header: Trans. Date,Description,Amount,Category
+//01/01/2023,"TST* PARIS BAGUETTE - ZI IRVINE CA",21.75,"Restaurants"
+//    fileName|Trans. Date|Description|Amount|Category
     // common outside double quotes string
     Pattern pattern = Pattern.compile(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
 
@@ -35,22 +36,30 @@ public class DiscoverService {
         List<String> outLines = new ArrayList<>();
         List<RecordInfo> recordInfos = new ArrayList<>();
 
+        int index = 0;
         for (String line : lines) {
-            String[] strArray = line.split("\\|");
-            ConfigInfo configInfo = config.getGroupInfo(strArray[3]);
+            try {
+                String[] strArray = line.split("\\|");
+                ConfigInfo configInfo = config.getGroupInfo(strArray[2]);
 
-            RecordInfo recordInfo = RecordInfo.builder()
-                    .raw(line)
-                    .fileName(strArray[0])
-                    .description(strArray[3])
-                    .amount(-Double.parseDouble(strArray[4])) //discover raw data : expense is +
-                    .group1( configInfo.getGroup1()== null ? Group1.nullValue: configInfo.getGroup1())
-                    .group2(configInfo.getGroup2()== null ? Group2.nullvalue : configInfo.getGroup2())
-                    .searchKey(configInfo.getSearchKey())
-                    .build();
+                RecordInfo recordInfo = RecordInfo.builder()
+                        .raw(line)
+                        .fileName(strArray[0])
+                        .description(strArray[2])
+                        .amount(-Double.parseDouble(strArray[3].replace(",", ""))) //discover raw data : expense is +, amount may have thousands-separator commas
+                        .group1(configInfo.getGroup1() == null ? Group1.nullValue : configInfo.getGroup1())
+                        .group2(configInfo.getGroup2() == null ? Group2.nullvalue : configInfo.getGroup2())
+                        .searchKey(configInfo.getSearchKey())
+                        .build();
 //            outLines.add(recordInfo.toALine());
-            recordInfos.add(recordInfo);
-
+                recordInfos.add(recordInfo);
+            } catch (Exception ex) {
+                //raw CSV has description fields with embedded newlines, which
+                //Files.readAllLines splits across physical lines - those fragments
+                //fail to parse here and are skipped rather than aborting the file.
+                System.out.println("index:" + index + "_line:" + line);
+            }
+            index++;
 
         }
         return recordInfos;
@@ -80,10 +89,9 @@ public class DiscoverService {
        List<String> trimmedList = new ArrayList<>();
        for (String item : items) {
            if (item.startsWith("\"") && item.endsWith("\"")) {
-               trimmedList.add(item.substring(1, item.length() - 1));
-           } else {
-               trimmedList.add(item);
+               item = item.substring(1, item.length() - 1);
            }
+           trimmedList.add(item.replace("|", "_"));
        }
         return  String.join("|", trimmedList);
     }

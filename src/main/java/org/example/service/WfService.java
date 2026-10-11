@@ -12,9 +12,13 @@ public class WfService {
 
 
     //filename wf_yyyy.....csv
-    //"10/16/2022","156.61","*","","AUTOMATIC PAYMENT - THANK YOU"
+    //current raw header: "DATE","DESCRIPTION","AMOUNT","CHECK #","STATUS"
     List<String> putALlInOneFile(String fileNameWoPath, List<String> lines){
         List<String> oneFileLines = new ArrayList<>();
+
+        if (!lines.isEmpty()) {
+            lines.remove(0);//remove header
+        }
 
         for (String line : lines) {
            if (line.startsWith("\"")) {
@@ -24,14 +28,19 @@ public class WfService {
             if (line.endsWith("\"")) {
                 line =line.substring(0 , line.length()-1);
             }
-            line.replace("\",\"", "|");
-            String lineNewValue  = fileNameWoPath+ "|" + line.replace("\",\"", "|");
+            String[] fields = line.split("\",\"", -1);
+            List<String> escapedFields = new ArrayList<>();
+            for (String field : fields) {
+                escapedFields.add(field.replace("|", "_"));
+            }
+            String lineNewValue = fileNameWoPath + "|" + String.join("|", escapedFields);
             oneFileLines.add(lineNewValue);
 
         }
         return oneFileLines;
     }
 
+    //fileName|DATE|DESCRIPTION|AMOUNT|CHECK #|STATUS
     public List<RecordInfo> getRecordInfo(List<String> lines){
         RecordConfigWf config = new RecordConfigWf();
         List<String> outLines = new ArrayList<>();
@@ -41,7 +50,7 @@ public class WfService {
             String[] strArray = line.split("\\|");
             ConfigInfo configInfo;
             try {
-                 configInfo = config.getGroupInfo(strArray[5]);
+                 configInfo = config.getGroupInfo(strArray[2]);
             }
             catch (Exception ex) {
                 System.out.println("lines:" + lines);
@@ -51,8 +60,8 @@ public class WfService {
             RecordInfo recordInfo = RecordInfo.builder()
                     .raw(line)
                     .fileName(strArray[0])
-                    .description(strArray[5])
-                    .amount(Double.parseDouble(strArray[2]))
+                    .description(strArray[2])
+                    .amount(Double.parseDouble(strArray[3]))
                     .group1( configInfo.getGroup1()== null ? Group1.nullValue: configInfo.getGroup1())
                     .group2(configInfo.getGroup2()== null ? Group2.nullvalue : configInfo.getGroup2())
                     .searchKey(configInfo.getSearchKey())

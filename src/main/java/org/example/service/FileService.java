@@ -22,6 +22,8 @@ public class FileService {
     CitiService citiService = new CitiService();
 
     ChaseService chaseService = new ChaseService();
+    VerificationService verificationService = new VerificationService();
+    List<FileVerificationResult> verificationResults = new ArrayList<>();
     String timeStamp = HelperService.getTime();
     String outFilePrefix = "out_" + timeStamp;
 
@@ -30,14 +32,13 @@ public class FileService {
         List<VendorInfo> venderList = new ArrayList<>();
         venderList.add(new VendorInfo("wfmanual_", AccountVender.wellsfargomanual));
         venderList.add(new VendorInfo("wf_", AccountVender.wellsfargo));
-        venderList.add(new VendorInfo("DFS_", AccountVender.discovery));
-        venderList.add(new VendorInfo("Chase_", AccountVender.chase));
-//        2024 citi card bypass as no taxable transaction
-//        venderList.add(new VendorInfo("citi_", AccountVender.citi));
+        venderList.add(new VendorInfo("discovery_", AccountVender.discovery));
+        venderList.add(new VendorInfo("chase_", AccountVender.chase));
+        venderList.add(new VendorInfo("citi_", AccountVender.citi));
         for(VendorInfo vendor: venderList)
         {
             allRecordInfos.addAll(
-                    processRawFile(vendor.getInputFilePrefix() + TaxYear.taxYear, vendor.getAccountVender(), outFilePrefix)
+                    processRawFile(vendor.getInputFilePrefix(), vendor.getAccountVender(), outFilePrefix)
 
             );
         }
@@ -66,10 +67,9 @@ public class FileService {
                         .thenComparing(RecordInfo::getDescription,Comparator.reverseOrder()))
                 .collect(Collectors.toList());
 
-        String outFileALlWithGroupAmount =  Cons.output  + "/all_" + outFilePrefix +  "withGroupSum.csv";
         List<String> lines1 = new ArrayList<>();
         sortedRecords.forEach( x -> lines1.add(x.toLineWithGroupAmmount()));
-        appendFile( lines1, Paths.get(outFileALlWithGroupAmount));
+        writeOutput(lines1, "all_" + outFilePrefix + "withGroupSum.csv", "all_withGroupSum.csv");
 
 ////write to Group Sum Count
 
@@ -101,10 +101,7 @@ public class FileService {
 
         sortedWithSumAndCountRecords.forEach( x -> linesSumCount.add(x.toLineWithGroupSumAndCount()));
 
-        String outFileALlWithGroupSumCount =  Cons.output  + "/all_" + outFilePrefix +  "withGroupSumCount.csv";
-
-
-        appendFile( linesSumCount, Paths.get(outFileALlWithGroupSumCount));
+        writeOutput(linesSumCount, "all_" + outFilePrefix + "withGroupSumCount.csv", "all_withGroupSumCount.csv");
 
 
         List<SummaryInfo> summaryInfoList = new ArrayList<>();
@@ -136,17 +133,29 @@ public class FileService {
                        x.getGroup1(),x.getGroup2(),x.getGroupSum(), x.getGroupCount()));
         });
 
-        String outFileSummary =  Cons.output  + "/all_" + outFilePrefix +  "summary.csv";
+        writeOutput(summaryLines, "all_" + outFilePrefix + "summary.csv", "all_summary.csv");
 
 
-        appendFile( summaryLines, Paths.get(outFileSummary));
-
-
-//        processRawFile("wf_" + TaxYear.taxYear, AccountVender.wellsfargo, outFilePrefix);;
-//        processRawFile("DFS_" +  TaxYear.taxYear, AccountVender.discovery, outFilePrefix);;
-//        processRawFile("Chase_" +  TaxYear.taxYear, AccountVender.chase, outFilePrefix);;
-//
         summaryInOne(outFilePrefix);
+
+        printOverallVerification();
+    }
+
+    //aggregates every per-file verification result into one overall match/not-match
+    //on total record count, total positive (credit) amount, total negative (debt) amount
+    public void printOverallVerification(){
+        FileVerificationResult total = FileVerificationResult.builder()
+                .fileName("OVERALL")
+                .build();
+        for (FileVerificationResult result : verificationResults) {
+            total.setRawCount(total.getRawCount() + result.getRawCount());
+            total.setReformatCount(total.getReformatCount() + result.getReformatCount());
+            total.setRawCreditSum(total.getRawCreditSum() + result.getRawCreditSum());
+            total.setReformatCreditSum(total.getReformatCreditSum() + result.getReformatCreditSum());
+            total.setRawDebitSum(total.getRawDebitSum() + result.getRawDebitSum());
+            total.setReformatDebitSum(total.getReformatDebitSum() + result.getReformatDebitSum());
+        }
+        System.out.println(total.toReportLine());
     }
 
 
@@ -167,11 +176,13 @@ public class FileService {
         }
 
         new File(Cons.output).mkdirs();
+        new File(Cons.outputArchive).mkdirs();
 
 
 
         String fileNameBase = outFilePrefix + "_" + accountVender.toString() + "_" + TaxYear.taxYear;
-        String outFile0 = Cons.output  + "/" + fileNameBase +  "_0.csv";
+        String stableBase = accountVender.toString() + "_" + TaxYear.taxYear;
+        String outFile0Archive = Cons.outputArchive  + "/" + fileNameBase +  "_0.csv";
 //        BufferedWriter bw = new BufferedWriter(new FileWriter(outFile0));
 
         //put all file in one file , filename | xx |...
@@ -181,11 +192,16 @@ public class FileService {
                Path myPath = Paths.get(file.getPath());
 
                List<String> lines = Files.readAllLines(myPath, StandardCharsets.UTF_8);
+               List<String> mergedLines = HelperService.mergeMultilineCsvRecords(lines);
 
+               if (accountVender == AccountVender.discovery) {
+                   String baseName = file.getName().replaceFirst("\\.[^.]+$", "");
+                   writeOutput(mergedLines, outFilePrefix + "_" + baseName + "_correct_format.csv", baseName + "_correct_format.csv");
+               }
 
-               List<String> linesReformat = reformatLines(accountVender, file.getName(), lines);
+               List<String> linesReformat = reformatLines(accountVender, file.getName(), mergedLines);
 
-               appendFile(linesReformat,Paths.get(outFile0));
+               writeOutput(linesReformat, fileNameBase + "_0.csv", stableBase + "_0.csv");
 
                System.out.println("read source one file");
 
@@ -196,7 +212,7 @@ public class FileService {
         }
 
 //convert to record info, all in one file from one vender
-        Path file0Path = Paths.get(outFile0);
+        Path file0Path = Paths.get(outFile0Archive);
 
         if (!Files.exists(file0Path)) {
             System.out.println("No input files found for prefix '" + preFix + "', skipping vendor: " + accountVender);
@@ -205,26 +221,36 @@ public class FileService {
 
         List<String> allLines = Files.readAllLines(file0Path, StandardCharsets.UTF_8);
 
-        String outFile1 =  Cons.output  + "/" + fileNameBase +  "_1.csv";
         //wf_2022_b_checking_0697.csv|12/16/2022|2358.79|*||AMAZON.CKCH0ZSMK PAYMENTS 221215 5KSSKYOGSAO0UFF Adan Liu|sprill||amazon
 
 //        appendFile( wfService.processRecord(allLines), Paths.get(fileName));
 
         List<RecordInfo> recordInfos = getRecordInfos(accountVender, allLines);
 
+        Map<String, List<RecordInfo>> recordInfosByFile = recordInfos.stream()
+                .collect(Collectors.groupingBy(RecordInfo::getFileName));
+        for (File file : files) {
+            List<RecordInfo> fileRecordInfos = recordInfosByFile.getOrDefault(file.getName(), new ArrayList<>());
+            try {
+                FileVerificationResult verificationResult = verificationService.verify(file, accountVender, fileRecordInfos);
+                System.out.println(verificationResult.toReportLine());
+                verificationResults.add(verificationResult);
+            } catch (Exception ex) {
+                System.out.println("verification failed for " + file.getName() + ": " + ex.getMessage());
+            }
+        }
+
         List<String> linesInFile1 = new ArrayList<>();
         recordInfos.forEach( x -> linesInFile1.add(x.toALine()));
-        appendFile( linesInFile1, Paths.get(outFile1));
+        writeOutput(linesInFile1, fileNameBase + "_1.csv", stableBase + "_1.csv");
 
         //generate grouped summary file
 
-        String outFile2 =  Cons.output  + "/" + fileNameBase +  "_2.csv";
-        appendFile( helperService.processSummary(recordInfos), Paths.get(outFile2));
+        writeOutput(helperService.processSummary(recordInfos), fileNameBase + "_2.csv", stableBase + "_2.csv");
 
-        String outFile3 =  Cons.output  + "/" + fileNameBase +  "_3.csv";
         List<String> linesInGeneral = new ArrayList<>();
         recordInfos.forEach( x -> linesInFile1.add(x.toLineInGeneral()));
-        appendFile( linesInFile1, Paths.get(outFile3));
+        writeOutput(linesInFile1, fileNameBase + "_3.csv", stableBase + "_3.csv");
 
 
 
@@ -245,6 +271,30 @@ public class FileService {
         }
 
 
+    }
+
+    Set<String> stableFilesWrittenThisRun = new HashSet<>();
+
+    //writes a timestamped copy to 2025/output/archive/<archiveFileName> (appended,
+    //same as before, since a run may add to the same archive file across several
+    //input files of one vendor) and a second copy to 2025/output/<stableFileName>
+    //whose name never changes between runs - truncated on the first write of this
+    //run so it reflects only the latest run, then appended to for the rest of it.
+    public void writeOutput(List<String> lines, String archiveFileName, String stableFileName){
+        new File(Cons.outputArchive).mkdirs();
+        appendFile(lines, Paths.get(Cons.outputArchive + "/" + archiveFileName));
+
+        new File(Cons.output).mkdirs();
+        Path stablePath = Paths.get(Cons.output + "/" + stableFileName);
+        try {
+            if (stableFilesWrittenThisRun.add(stableFileName)) {
+                Files.write(stablePath, lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            } else {
+                Files.write(stablePath, lines, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
 
@@ -285,7 +335,7 @@ public class FileService {
 
 
     public void summaryInOne(String preFix){
-        File dir = new File(Cons.output);
+        File dir = new File(Cons.outputArchive);
         dir.mkdirs();
 
         File[] filesArray = dir.listFiles(fileName ->
@@ -298,9 +348,6 @@ public class FileService {
 
 
 
-        String outFile = Cons.output  + "/" + "all_" + preFix +  ".csv";
-//        BufferedWriter bw = new BufferedWriter(new FileWriter(outFile));
-
         //put all file in one file , filename | xx |...
         //wf_2022_b_card_7877.csv|10/16/2022|156.61|*||AUTOMATIC PAYMENT - THANK YOU
         for(File file : files) {
@@ -309,10 +356,7 @@ public class FileService {
 
                 List<String> lines = Files.readAllLines(myPath, StandardCharsets.UTF_8);
 
-
-
-
-                appendFile(lines,Paths.get(outFile));
+                writeOutput(lines, "all_" + preFix + ".csv", "all.csv");
 
                 System.out.println("read source one file");
 

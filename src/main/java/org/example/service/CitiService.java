@@ -13,43 +13,53 @@ public class CitiService {
 
         lines.remove(0);//remove header
         for (String line : lines) {
-//            if (line.startsWith("\"")) {
-//                line =line.substring(1 , line.length());
-//            }
-//
-//            if (line.endsWith("\"")) {
-//                line =line.substring(0 , line.length()-1);
-//            }
-//            line.replace("\",\"", "|");
-            String lineNewValue  = fileNameWoPath+ "|" + line.replace(",", "|");
+            String[] fields = line.split(",", -1);
+            List<String> escapedFields = new ArrayList<>();
+            for (String field : fields) {
+                escapedFields.add(field.replace("|", "_"));
+            }
+            String lineNewValue = fileNameWoPath + "|" + String.join("|", escapedFields);
             oneFileLines.add(lineNewValue);
 
         }
         return oneFileLines;
     }
 
+    //fileName|Status|Date|Description|Debit|Credit|Member Name
+    //citi has no single signed Amount column - Debit (money out, negative) and
+    //Credit (money in, positive) are separate columns, only one of which is set.
     public List<RecordInfo> getRecordInfo(List<String> lines){
-        RecordConfigChase config = new RecordConfigChase();
+        RecordConfigShare config = new RecordConfigShare();
         List<String> outLines = new ArrayList<>();
         List<RecordInfo> recordInfos = new ArrayList<>();
 
+        int index = 0;
         for (String line : lines) {
-            String[] strArray = line.split("\\|");
-//            String[] strArray = line.split(",");
-            ConfigInfo configInfo = config.getGroupInfo(strArray[3]);
+            try {
+                String[] strArray = line.split("\\|", -1);
+                ConfigInfo configInfo = config.getGroupInfo(strArray[3]);
 
-            RecordInfo recordInfo = RecordInfo.builder()
-                    .raw(line)
-                    .fileName(strArray[0])
-                    .description(strArray[3])
-                    .amount(Double.parseDouble(strArray[6]))
-                    .group1( configInfo.getGroup1()== null ? Group1.nullValue: configInfo.getGroup1())
-                    .group2(configInfo.getGroup2()== null ? Group2.nullvalue : configInfo.getGroup2())
-                    .searchKey(configInfo.getSearchKey())
-                    .build();
+                String debit = strArray[4];
+                String credit = strArray[5];
+                double amount = (credit != null && !credit.isBlank())
+                        ? Double.parseDouble(credit.replace(",", ""))
+                        : -Double.parseDouble(debit.replace(",", ""));
+
+                RecordInfo recordInfo = RecordInfo.builder()
+                        .raw(line)
+                        .fileName(strArray[0])
+                        .description(strArray[3])
+                        .amount(amount)
+                        .group1( configInfo.getGroup1()== null ? Group1.nullValue: configInfo.getGroup1())
+                        .group2(configInfo.getGroup2()== null ? Group2.nullvalue : configInfo.getGroup2())
+                        .searchKey(configInfo.getSearchKey())
+                        .build();
 //            outLines.add(recordInfo.toALine());
-            recordInfos.add(recordInfo);
-
+                recordInfos.add(recordInfo);
+            } catch (Exception ex) {
+                System.out.println("index:" + index + "_line:" + line);
+            }
+            index++;
 
         }
         return recordInfos;

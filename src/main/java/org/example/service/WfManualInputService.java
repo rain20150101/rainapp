@@ -47,7 +47,7 @@ public class WfManualInputService {
                         + dateValue + "|"  //0
                         + amount.replace(",","") + "|"
                         + "||"
-                        + items[0];
+                        + items[0].replace("|", "_");
 
                 oneFileLines.add(lineNewValue);
 

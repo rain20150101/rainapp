@@ -21,6 +21,30 @@ public class HelperService {
 
     }
 
+    //Files.readAllLines splits a CSV on every newline, including ones embedded
+    //inside a quoted field (e.g. a multi-line Discover description). A line with
+    //an odd number of quote characters means its quoted field isn't closed yet,
+    //so fold the following physical line(s) into it until the quotes balance.
+    public static List<String> mergeMultilineCsvRecords(List<String> rawLines){
+        List<String> merged = new ArrayList<>();
+        StringBuilder pending = null;
+
+        for (String line : rawLines) {
+            pending = pending == null ? new StringBuilder(line) : pending.append(" ").append(line);
+
+            long quoteCount = pending.chars().filter(c -> c == '"').count();
+            if (quoteCount % 2 == 0) {
+                merged.add(pending.toString());
+                pending = null;
+            }
+        }
+        if (pending != null) {
+            //unbalanced quotes at end of file - keep as-is, downstream parsing will skip it
+            merged.add(pending.toString());
+        }
+        return merged;
+    }
+
     public List<String> processSummary(List<RecordInfo> recordInfos){
 
         Map<String, GroupSummary> groupedSummary = recordInfos.stream()

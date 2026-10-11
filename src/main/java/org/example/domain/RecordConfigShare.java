@@ -2,9 +2,9 @@ package org.example.domain;
 
 import javax.swing.*;
 
-public class RecordConfigChase extends RecordConfigBase{
+public class RecordConfigShare extends RecordConfigBase{
 
-    public RecordConfigChase(){
+    public RecordConfigShare(){
 
         addConfig("LONG'S KITCHEN", Group1.liuRealestate, Group2.resturant);
         addConfig("SICHUAN IMPRESSION", Group1.liuRealestate, Group2.resturant);
