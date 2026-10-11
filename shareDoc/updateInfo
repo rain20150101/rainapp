@@ -1,0 +1,48 @@
+research why below record is liuRealestate
+discovery_transactions_2005.csv	PETS BEST INSURANCE SERV 877-738-7237 NC DNH*GODADDY#3938995607	liuRealestate	telcom	-98.7	-3774.46	46	null
+
+why below record process missing amount
+"12/01/2025","RECURRING TRANSFER TO LIU CUI FAMILY TRUST, DATED MARCH WAY2SAVE SAVINGS REF #OP0VW9M8DR XXXXXX3959","-25.00","","Posted"
+"07/25/2025","LOANDEPOT COM LL DIRECT DEP 250725 942936376327HV3 LIU,GUOSI","3730.46","","Posted"
+
+LOANDEPOT COM LL PAYROLL    251226 330076920078HV3 LIU
+
+UEP*YUNNAN RESTAURANT LAKE FOREST
+
+
+
+add discoverconfig
+PETS BEST  - notCount
+
+
+create new config base when go config , first go this , then go to specific (this is BAU)
+
+PETSMART 	notCount
+TRADER JOE  notCount TraderJoe
+RALPHS #029  notCount RALPHS
+ZION MARKET  notCount ZION
+
+
+in wellfarg config
+
+RECURRING TRANSFER TO ZHESHUN CUI  |notCount| innerTransfer
+RECURRING TRANSFER TO LIU CUI FAMILY TRUST | notCount |innerTransfer
+RECURRING TRANSFER FROM ZHESHUN CUI BUSINESS CHECKING |notCount| innerTransfer
+RECURRING TRANSFER FROM LIU G EVERYDAY CHECKING |notCount |innerTransfer
+WETRUST REALTY   COMMISSION  |liuRealestate_income	|skip_asin_1099
+WASTE MANAGEMENT PAYMENT |liuRealestat |manual
+FLOOR AND DECOR 129 SANTA ANA CA |queston
+Coinbase.com  |highlight
+
+CHASE CREDIT CRD AUTOPAY |notCount |payCC
+DISCOVER         E-PAYMENT  251223 2935  |notCount |payCC
+
+update
+addConfig("WORLDFINANCIALGR COMMISSION",Group1.liuRealestate_income,Group2.WORLDFINANCIALGR); //
+in discovery
+
+DIRECTPAY FULL BALANCE |notCount |balance
+
+question ;
+Coinbase.com     ZVTHBSQD          ZVTHBSQD055e    GUOSI LIU
+
