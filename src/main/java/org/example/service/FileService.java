@@ -159,7 +159,14 @@ public class FileService {
         File[] filesArray = dir.listFiles(fileName ->
                 fileName.getName().startsWith(preFix));
 
-        List<File> files = Arrays.asList(filesArray);
+        List<File> files = filesArray == null
+                ? new ArrayList<>()
+                : Arrays.asList(filesArray);
+        if (filesArray == null) {
+            System.out.println("Input directory not found or not a directory, skipping: " + dir.getPath());
+        }
+
+        new File(Cons.output).mkdirs();
 
 
 
@@ -190,6 +197,11 @@ public class FileService {
 
 //convert to record info, all in one file from one vender
         Path file0Path = Paths.get(outFile0);
+
+        if (!Files.exists(file0Path)) {
+            System.out.println("No input files found for prefix '" + preFix + "', skipping vendor: " + accountVender);
+            return new ArrayList<>();
+        }
 
         List<String> allLines = Files.readAllLines(file0Path, StandardCharsets.UTF_8);
 
@@ -274,11 +286,14 @@ public class FileService {
 
     public void summaryInOne(String preFix){
         File dir = new File(Cons.output);
+        dir.mkdirs();
 
         File[] filesArray = dir.listFiles(fileName ->
                 fileName.getName().startsWith(preFix) && fileName.getName().endsWith("_2.csv"));
 
-        List<File> files = Arrays.asList(filesArray);
+        List<File> files = filesArray == null
+                ? new ArrayList<>()
+                : Arrays.asList(filesArray);
 
 
 
