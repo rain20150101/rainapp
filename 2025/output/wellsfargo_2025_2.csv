@@ -1,22 +1,28 @@
-atm check deposit|unkown|nullvalue|18390.0|14
-metropolitan lif pol prem|notCount|insurance|-22000.0|44
-chase credit crd autopay|notCount|nullvalue|-27942.22|62
-amazon|sprill|nullvalue|2384.36|48
-tekton|rentalRiverside|riverside_rental_income|49192.0|24
-zelle to|notCount|nullvalue|-182491.96|100
-business to business ach godaddyp|liuRealestate|telcom|-538.0|24
-atgpay online|irvine169|hoa|-4630.799999999999|24
-ebay com|sprill|ebay|-671.8600000000001|76
-zelle from panda clean inc|liuRealestate_income|commission_referal|16440.0|8
-zelle from|notCount|nullvalue|276948.24|232
-recurring transfer to|notCount|nullvalue|-7800.0|72
-so cal edison|irvine169|utility|-3826.0|30
-online transfer|notCount|nullvalue|0.0|16
-null|nullValue|nullvalue|-118922.92000000001|324
-atm withdrawal|unkown|nullvalue|-11600.0|54
-stonegate villag|irvine169|hoa|-3648.0|24
-worldfinancialgr commission|liuRealestate_income|_ignore_as_in_1099|373.44|8
-loandepot com ll direct|notCount|nullvalue|118914.36|32
-interest payment|notCount|interest|0.32|28
-la rivera|rentalRiverside|hoa|-3780.0|24
-recurring transfer from|notCount|nullvalue|7800.0|72
+atm check deposit|unkown|nullvalue|9195.0|7
+recurring transfer to zheshun cui|notCount|innerTransfer|-3600.0|24
+amazon|sprill|nullvalue|1192.18|24
+worldfinancialgr commission|liuRealestate_income|WORLDFINANCIALGR|186.72|4
+recurring transfer from zheshun cui business checking|notCount|innerTransfer|1800.0|12
+recurring transfer to liu cui family trust|notCount|innerTransfer|-300.0|12
+atgpay online|irvine169|hoa|-2315.3999999999996|12
+zelle from|notCount|nullvalue|138474.12|116
+so cal edison|irvine169|utility|-1913.0|15
+online transfer|notCount|nullvalue|0.0|8
+wetrust realty   commission|liuRealestate_income|skip_asin_1099|133967.2|7
+interest payment|notCount|interest|0.16|14
+waste management payment|liuRealestate|manual|-394.88|4
+metropolitan lif pol prem|notCount|insurance|-11000.0|22
+tekton|rentalRiverside|riverside_rental_income|24596.0|12
+zelle to|notCount|nullvalue|-91245.98|50
+business to business ach godaddyp|liuRealestate|telcom|-269.0|12
+coinbase.com|highlight|nullvalue|2786.0|1
+ebay com|sprill|ebay|-335.93000000000006|38
+zelle from panda clean inc|liuRealestate_income|commission_referal|8220.0|4
+chase credit crd autopay|notCount|payCC|-13971.11|31
+null|nullValue|nullvalue|-195819.78|150
+atm withdrawal|unkown|nullvalue|-5800.0|27
+stonegate villag|irvine169|hoa|-1824.0|12
+loandepot com ll direct|notCount|nullvalue|59457.18|16
+la rivera|rentalRiverside|hoa|-1890.0|12
+recurring transfer from|notCount|nullvalue|1800.0|12
+recurring transfer from liu g everyday checking|notCount|innerTransfer|300.0|12

@@ -1,4 +1,4 @@
-research why below record is liuRealestate
+research why below record is liuRealestate , what is key make this decision
 discovery_transactions_2005.csv	PETS BEST INSURANCE SERV 877-738-7237 NC DNH*GODADDY#3938995607	liuRealestate	telcom	-98.7	-3774.46	46	null
 
 why below record process missing amount
@@ -11,11 +11,10 @@ UEP*YUNNAN RESTAURANT LAKE FOREST
 
 
 
-add discoverconfig
-PETS BEST  - notCount
 
 
-create new config base when go config , first go this , then go to specific (this is BAU)
+
+add below in   config base.  when go config , first go this , then go to specific (this is BAU)
 
 PETSMART 	notCount
 TRADER JOE  notCount TraderJoe
@@ -39,10 +38,11 @@ DISCOVER         E-PAYMENT  251223 2935  |notCount |payCC
 
 update
 addConfig("WORLDFINANCIALGR COMMISSION",Group1.liuRealestate_income,Group2.WORLDFINANCIALGR); //
-in discovery
+
+
+in discovery config
 
 DIRECTPAY FULL BALANCE |notCount |balance
+PETS BEST   notCount
 
-question ;
-Coinbase.com     ZVTHBSQD          ZVTHBSQD055e    GUOSI LIU
 
